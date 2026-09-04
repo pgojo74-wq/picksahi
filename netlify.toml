@@ -1,6 +1,6 @@
 [build]
   base = "backend"
-  command = "npm run build"
+  command = "npm run prepare:netlify && npm run build"
   publish = "../netlify-site"
   functions = "netlify/functions"
 
