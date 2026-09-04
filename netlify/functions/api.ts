@@ -15,11 +15,18 @@ async function getHandler() {
 export const handler = async (event: unknown, context: unknown) => {
   try {
     return await (await getHandler())(event, context);
-  } catch {
+  } catch (error) {
+    console.error('Netlify function startup failed', error);
+    const issues = error && typeof error === 'object' && 'issues' in error
+      ? (error as { issues?: Array<{ path?: Array<string> }> }).issues
+      : undefined;
+    const message = issues?.length
+      ? `Invalid environment variable: ${issues.map((issue) => issue.path?.join('.') || 'unknown').join(', ')}`
+      : 'Function startup failed. Check the Netlify function log.';
     return {
       statusCode: 500,
       headers: { 'content-type': 'application/json; charset=utf-8' },
-      body: JSON.stringify({ error: 'SERVER_CONFIGURATION_ERROR', message: 'Netlify environment variables missing or invalid hain. DATABASE_URL, JWT_ACCESS_SECRET, JWT_REFRESH_SECRET, ADMIN_EMAIL aur ALLOWED_ORIGINS check karein.' })
+      body: JSON.stringify({ error: 'SERVER_STARTUP_ERROR', message })
     };
   }
 };
