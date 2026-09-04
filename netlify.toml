@@ -1,3 +1,8 @@
 [build]
-  command = "npm --prefix backend run prepare:netlify"
+  command = "npm ci && npm --prefix backend ci && npm --prefix backend run prepare:netlify && npm --prefix backend run build"
   publish = "netlify-site"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["pg"]
