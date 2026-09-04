@@ -9,7 +9,7 @@ import { authRoutes } from './routes/auth.js';
 import { contentRoutes } from './routes/content.js';
 
 export async function buildApp() {
-  const app = Fastify({ logger: { level: config.NODE_ENV === 'production' ? 'info' : 'debug', redact: ['req.headers.authorization', 'req.body.password', 'req.body.refreshToken'] }, trustProxy: config.NODE_ENV === 'production' });
+  const app = Fastify({ bodyLimit: 1_500_000, logger: { level: config.NODE_ENV === 'production' ? 'info' : 'debug', redact: ['req.headers.authorization', 'req.body.password', 'req.body.refreshToken'] }, trustProxy: config.NODE_ENV === 'production' });
   await app.register(helmet, { contentSecurityPolicy: false, crossOriginResourcePolicy: { policy: 'same-site' } });
   await app.register(cors, {
     origin(origin, callback) {
