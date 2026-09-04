@@ -1,10 +1,10 @@
 import serverless from 'serverless-http';
+import { buildApp } from '../../backend/src/app.js';
 
 let cachedHandler: ReturnType<typeof serverless> | undefined;
 
 async function getHandler() {
   if (!cachedHandler) {
-    const { buildApp } = await import('../../backend/src/app.js');
     const app = await buildApp();
     await app.ready();
     cachedHandler = serverless(app.server);
