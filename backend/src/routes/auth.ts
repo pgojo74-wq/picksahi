@@ -5,6 +5,7 @@ import { hashPassword, tokenHash, verifyPassword } from '../lib/security.js';
 import { requireAuth, audit } from '../lib/http.js';
 
 const credentials = z.object({ email: z.string().email().max(254).transform((v) => v.toLowerCase()), password: z.string().min(12).max(128) });
+const adminPassword = z.object({ password: z.string().min(12).max(128) });
 const registration = credentials.extend({ fullName: z.string().trim().min(2).max(120) });
 
 async function issueTokens(app: FastifyInstance, user: { id: string; role: 'customer' | 'admin' }) {
@@ -39,6 +40,16 @@ export async function authRoutes(app: FastifyInstance) {
     return { user: { id: user.id, email: parsed.data.email, fullName: user.full_name, role: user.role }, ...(await issueTokens(app, user)) };
   });
 
+  app.post('/admin-login', { config: { rateLimit: { max: 5, timeWindow: '15 minutes' } } }, async (request, reply) => {
+    const parsed = adminPassword.safeParse(request.body);
+    const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+    if (!parsed.success || !adminEmail) return reply.code(400).send({ error: 'VALIDATION_ERROR', message: 'Password is required.' });
+    const result = await db.query<{ id: string; password_hash: string; role: 'customer' | 'admin'; full_name: string }>('SELECT id, password_hash, role, full_name FROM users WHERE email = $1 AND is_active = true', [adminEmail]);
+    const user = result.rows[0];
+    if (!user || user.role !== 'admin' || !(await verifyPassword(parsed.data.password, user.password_hash))) return reply.code(401).send({ error: 'INVALID_CREDENTIALS', message: 'Password ghalat hai.' });
+    await audit(user.id, 'admin.logged_in', 'user', user.id);
+    return { user: { id: user.id, fullName: user.full_name, role: user.role }, ...(await issueTokens(app, user)) };
+  });
   app.post('/refresh', async (request, reply) => {
     const body = z.object({ refreshToken: z.string().min(1) }).safeParse(request.body);
     if (!body.success) return reply.code(400).send({ error: 'VALIDATION_ERROR', message: 'Refresh token required.' });
