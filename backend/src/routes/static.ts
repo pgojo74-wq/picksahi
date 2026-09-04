@@ -8,7 +8,7 @@ const contentTypes: Record<string, string> = { '.html': 'text/html; charset=utf-
 
 async function sendFile(reply: FastifyReply, filePath: string) {
   try {
-    return reply.type(contentTypes[extname(filePath)] ?? 'application/octet-stream').send(await readFile(filePath));
+    return reply.header('cache-control', 'no-store').type(contentTypes[extname(filePath)] ?? 'application/octet-stream').send(await readFile(filePath));
   } catch {
     return reply.code(404).send({ error: 'NOT_FOUND', message: 'File not found.' });
   }
