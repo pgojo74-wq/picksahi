@@ -18,3 +18,36 @@ html{overflow-x:clip}body{overflow-x:hidden}img{max-width:100%}.brand-logo{width
 .public-product-link{display:inline-block;margin:12px 0 0;color:#4563e7;font-size:12px;font-weight:800;text-decoration:underline;text-underline-offset:3px}
 
 .product-faq{margin:20px 0;padding:15px;border:1px solid var(--border);border-radius:10px;background:#f8faff}.product-faq h2{margin:0 0 7px;font-size:14px}.product-faq p{margin:0;font-size:12px;line-height:1.6;color:#566174}
+
+/* Mobile product experience */
+.product-card-content{min-width:0}
+@media(max-width:620px){
+  .product-grid{grid-template-columns:1fr;gap:12px}
+  .product-card{display:grid;grid-template-columns:118px minmax(0,1fr);column-gap:13px;align-items:start;padding:12px;border-radius:12px}
+  .product-card .product-visual{grid-column:1;height:118px;margin:0}
+  .product-card-content{grid-column:2;min-width:0}
+  .product-card .tag{margin-top:0}
+  .product-card h3{font-size:13px;min-height:0;line-height:1.35;margin:7px 0 5px;overflow-wrap:anywhere}
+  .product-card strong{font-size:15px;margin:7px 0 9px}
+  .product-card .stars{font-size:12px;white-space:nowrap}
+  .product-card .card-actions{display:flex;gap:8px}
+  .product-card .card-actions .button,.product-card .card-actions .outline-button{display:flex;width:auto;margin:0;min-height:42px;font-size:11px;padding:8px;align-items:center;justify-content:center}
+  .product-card .card-actions>*{flex:1}
+  .product-card .compare-toggle{grid-column:1/-1;margin:12px 0 0;padding-top:10px;border-top:1px solid var(--border);font-size:12px;min-height:28px}
+  .product-header{gap:12px}
+  .back-link{font-size:12px;white-space:nowrap}
+  .product-detail-card{border-radius:14px}
+  .product-detail-copy h1{overflow-wrap:anywhere}
+  .product-facts div{padding:12px}
+  .product-deal,.copy-link{min-height:46px}
+}
+@media(max-width:390px){
+  .product-card{grid-template-columns:102px minmax(0,1fr);column-gap:10px;padding:10px}
+  .product-card .product-visual{height:102px}
+  .product-card h3{font-size:12px}
+  .product-card strong{font-size:14px;margin:5px 0 7px}
+  .product-card .card-actions{gap:6px}
+  .product-card .card-actions .button,.product-card .card-actions .outline-button{min-height:40px;font-size:10px;padding:6px}
+  .product-header .brand-logo{width:102px}
+  .back-link{font-size:11px}
+}
