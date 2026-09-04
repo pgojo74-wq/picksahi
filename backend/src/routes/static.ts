@@ -16,6 +16,7 @@ async function sendFile(reply: FastifyReply, filePath: string) {
 
 export function staticRoutes(app: FastifyInstance) {
   app.get('/', async (_request, reply) => sendFile(reply, join(webRoot, 'index.html')));
+  app.get('/product.html', async (_request, reply) => sendFile(reply, join(webRoot, 'product.html')));
   app.get('/css/:file', async (request, reply) => sendFile(reply, join(webRoot, 'css', basename((request.params as { file: string }).file))));
   app.get('/js/:file', async (request, reply) => sendFile(reply, join(webRoot, 'js', basename((request.params as { file: string }).file))));
   app.get('/assets/:file', async (request, reply) => sendFile(reply, join(webRoot, 'assets', basename((request.params as { file: string }).file))));
