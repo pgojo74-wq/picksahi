@@ -11,6 +11,13 @@ const productFields = `p.id,p.name,p.brand,c.name AS category,p.rating::float,p.
 export async function contentRoutes(app: FastifyInstance) {
   app.get('/categories', async () => ({ items: (await db.query('SELECT name, icon FROM categories WHERE is_active = true ORDER BY name')).rows }));
   app.get('/products', async () => ({ items: (await db.query(`SELECT ${productFields} FROM products p JOIN categories c ON c.id=p.category_id WHERE p.is_active=true AND c.is_active=true ORDER BY p.rating DESC,p.name`)).rows }));
+  app.get('/products/:id', async (request, reply) => {
+    const parsed=z.object({id:z.string().min(2).max(80)}).safeParse(request.params);
+    if(!parsed.success)return reply.code(400).send({error:'VALIDATION_ERROR',message:'Invalid product.'});
+    const result=await db.query(`SELECT ${productFields} FROM products p JOIN categories c ON c.id=p.category_id WHERE p.id=$1 AND p.is_active=true AND c.is_active=true`,[parsed.data.id]);
+    if(!result.rowCount)return reply.code(404).send({error:'NOT_FOUND',message:'Product not found.'});
+    return {item:result.rows[0]};
+  });
   app.post('/newsletter/subscribers', { config: { rateLimit: { max: 5, timeWindow: '1 hour' } } }, async (request, reply) => { const parsed=subscriber.safeParse(request.body); if(!parsed.success)return reply.code(400).send({error:'VALIDATION_ERROR',message:'A valid email address is required.'}); await db.query(`INSERT INTO newsletter_subscribers (email,status) VALUES ($1,'active') ON CONFLICT (email) DO UPDATE SET status='active',subscribed_at=now()`,[parsed.data.email]); return reply.code(201).send({ok:true}); });
 
   app.get('/admin/categories', { preHandler: requireRole('admin') }, async () => ({ items: (await db.query('SELECT name, icon, is_active AS "isActive" FROM categories ORDER BY name')).rows }));
