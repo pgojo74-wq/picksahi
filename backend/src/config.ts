@@ -7,7 +7,8 @@ const configSchema = z.object({
   DATABASE_URL: z.string().url(),
   JWT_ACCESS_SECRET: z.string().min(32),
   JWT_REFRESH_SECRET: z.string().min(32),
-  ALLOWED_ORIGINS: z.string().min(1)
+  ALLOWED_ORIGINS: z.string().min(1),
+  ADMIN_EMAIL: z.string().email().transform((value) => value.toLowerCase())
 });
 
 export const config = configSchema.parse(process.env);

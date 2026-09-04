@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { db } from '../db/client.js';
+import { config } from '../config.js';
 import { hashPassword, tokenHash, verifyPassword } from '../lib/security.js';
 import { requireAuth, audit } from '../lib/http.js';
 
@@ -42,7 +43,7 @@ export async function authRoutes(app: FastifyInstance) {
 
   app.post('/admin-login', { config: { rateLimit: { max: 5, timeWindow: '15 minutes' } } }, async (request, reply) => {
     const parsed = adminPassword.safeParse(request.body);
-    const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+    const adminEmail = config.ADMIN_EMAIL;
     if (!parsed.success || !adminEmail) return reply.code(400).send({ error: 'VALIDATION_ERROR', message: 'Password is required.' });
     const result = await db.query<{ id: string; password_hash: string; role: 'customer' | 'admin'; full_name: string }>('SELECT id, password_hash, role, full_name FROM users WHERE email = $1 AND is_active = true', [adminEmail]);
     const user = result.rows[0];
